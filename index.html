@@ -264,7 +264,7 @@
                 
                 <div class="form-group">
                     <label for="redDotMagnification">红点镜视觉倍率 (x)</label>
-                    <input type="number" id="redDotMagnification" step="0.05" min="1.0" max="1.5" value="1.25">
+                    <input type="number" id="redDotMagnification" step="0.05" min="1.0" max="1.5" value="1.50">
                     <div class="range-info">游戏内可校准范围: 1.0x - 1.5x (步进0.05x)</div>
                 </div>
                 
@@ -277,16 +277,9 @@
                 <h2 class="section-title" style="margin-top: 30px;">2. 输入目标倍镜</h2>
                 
                 <div class="form-group">
-                    <label for="targetMagnification">目标倍镜视觉倍率 (x) | 注意：2x属于1-2倍，请输入2x以上的值</label>
-                    <input type="text" id="targetMagnification" placeholder="例如: 3.5 或 2.0, 4.0, 6.0" value="3.50">
-                    <div class="range-info">可输入单个倍率 (如 3.5) 或多个倍率用逗号/空格分隔 (如 2.0, 4.0, 6.0)</div>
-                </div>
-                
-                <div class="examples">
-                    <span onclick="setExample('3.5')">3.5x (常用)</span>
-                    <span onclick="setExample('3.5, 6.5')">3.5x, 6.5x</span>
-                    <span onclick="setExample('3.5, 6.5, 8.0, 12')">所有常用倍率</span>
-					<span onclick="setExample('2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5')">通用值</span>
+                    <label for="targetMagnification">目标倍镜视觉倍率 (x)</label>
+                    <input type="number" id="targetMagnification" step="0.05" min="1.05" max="12.5" value="3.50">
+                    <div class="range-info">可输入单个倍率 (如 3.5) 或多个倍率用逗号分隔 (如 2.0, 4.0, 6.0)</div>
                 </div>
                 
                 <button class="btn" onclick="calculateSensitivity()">计算灵敏度系数</button>
@@ -412,27 +405,28 @@
             const range = getGameRange(magnification);
             
             // 如果倍率已经在区间内，无需校准
+            // 否则建议校准到区间内最近的可校准值（步进0.05）
             if (range === "1-2倍" && magnification >= 1.00 && magnification <= 2.00) {
-                return "已为您输出正确的倍率值，请填入相应的区间内";
+                return "↑已为您输出正确的倍率值，请填入相应的区间内";
             } else if (range === "2-3倍" && magnification >= 2.05 && magnification <= 3.00) {
-                return "已为您输出正确的倍率值，请填入相应的区间内";
+                return "↑已为您输出正确的倍率值，请填入相应的区间内";
             } else if (range === "3-4倍" && magnification >= 3.05 && magnification <= 4.00) {
-                return "已为您输出正确的倍率值，请填入相应的区间内";
+                return "↑已为您输出正确的倍率值，请填入相应的区间内";
             } else if (range === "4-5倍" && magnification >= 4.05 && magnification <= 5.00) {
-                return "已为您输出正确的倍率值，请填入相应的区间内";
+                return "↑已为您输出正确的倍率值，请填入相应的区间内";
             } else if (range === "5-6倍" && magnification >= 5.05 && magnification <= 6.00) {
-                return "已为您输出正确的倍率值，请填入相应的区间内";
+                return "↑已为您输出正确的倍率值，请填入相应的区间内";
             } else if (range === "6-7倍" && magnification >= 6.05 && magnification <= 7.00) {
-                return "已为您输出正确的倍率值，请填入相应的区间内";
+                return "↑已为您输出正确的倍率值，请填入相应的区间内";
             } else if (range === "7-8倍" && magnification >= 7.05 && magnification <= 8.00) {
-                return "已为您输出正确的倍率值，请填入相应的区间内";
+                return "↑已为您输出正确的倍率值，请填入相应的区间内";
             } else if (range === "高倍" && magnification >= 8.05) {
-                return "已为您输出正确的倍率值，请填入相应的区间内";
+                return "↑已为您输出正确的倍率值，请填入相应的区间内";
             }
             
             // 否则建议校准到区间内
             let suggested;
-            if (range === "1-2倍") suggested = Math.max(1.00, Math.min(2.00, Math.round(magnification * 20) / 20));
+            if (range === "1-2倍") suggested = Math.max(1.05, Math.min(2.00, Math.round(magnification * 20) / 20));
             else if (range === "2-3倍") suggested = Math.max(2.05, Math.min(3.00, Math.round(magnification * 20) / 20));
             else if (range === "3-4倍") suggested = Math.max(3.05, Math.min(4.00, Math.round(magnification * 20) / 20));
             else if (range === "4-5倍") suggested = Math.max(4.05, Math.min(5.00, Math.round(magnification * 20) / 20));
@@ -442,16 +436,6 @@
             else suggested = Math.max(8.05, Math.round(magnification * 20) / 20);
             
             return `请输入正确的精校后的值以校准至 ${suggested.toFixed(2)}x 以确保明确落入"${range}"区间`;
-        }
-        
-        // 解析输入的倍率字符串
-        function parseMagnifications(input) {
-            // 支持逗号、空格、换行符分隔
-            return input.split(/[,，\s\n]+/)
-                .map(v => v.trim())
-                .filter(v => v !== '')
-                .map(v => parseFloat(v))
-                .filter(v => !isNaN(v) && v >= 1.0 && v <= 12.5);
         }
         
         // 计算灵敏度系数
@@ -475,11 +459,19 @@
             // 计算基准常数
             const K = redDotMag * redDotSens;
             
-            // 解析目标倍率
-            const targetMagnifications = parseMagnifications(targetInput);
+            // 处理目标倍率输入（可能是单个或多个）
+            const targetValues = targetInput.split(',').map(v => v.trim()).filter(v => v !== '');
+            const targetMagnifications = [];
+            
+            for (let val of targetValues) {
+                const numVal = parseFloat(val);
+                if (!isNaN(numVal) && numVal >= 2.00 && numVal <= 12.5) {
+                    targetMagnifications.push(numVal);
+                }
+            }
             
             if (targetMagnifications.length === 0) {
-                alert("请输入有效的目标倍率（1.0-12.5之间）");
+                alert("请输入有效的目标倍率（2.00-12.5之间）");
                 return;
             }
             
@@ -498,7 +490,7 @@
                     <strong>目标倍率:</strong> ${targetMag.toFixed(2)}x<br>
                     <strong>游戏内设置区间:</strong> ${range}<br>
                     <strong>基准常数 K:</strong> ${K.toFixed(4)} (${redDotMag.toFixed(2)} × ${redDotSens.toFixed(2)})<br>
-                    <strong>提示:</strong> ${calibrationSuggestion}
+                    <strong>警告:</strong> ${calibrationSuggestion}
                 `;
             } 
             // 多个倍率情况
@@ -506,23 +498,18 @@
                 document.getElementById('singleResult').style.display = 'none';
                 document.getElementById('multipleResults').style.display = 'block';
                 
-                // 按倍率排序
-                targetMagnifications.sort((a, b) => a - b);
-                
                 let resultsHTML = `
                     <div class="result-detail"><strong>基准常数 K:</strong> ${K.toFixed(4)} (${redDotMag.toFixed(2)} × ${redDotSens.toFixed(2)})</div>
-                    <div class="result-detail" style="margin-bottom: 15px;"><strong>共计算了 ${targetMagnifications.length} 个倍率:</strong></div>
-                    <div style="overflow-x: auto;">
-                        <table class="range-table">
-                            <thead>
-                                <tr>
-                                    <th>目标倍率</th>
-                                    <th>灵敏度系数</th>
-                                    <th>游戏区间</th>
-                                    <th>提示</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                    <table class="range-table" style="margin-top: 15px;">
+                        <thead>
+                            <tr>
+                                <th>目标倍率</th>
+                                <th>灵敏度系数</th>
+                                <th>游戏区间</th>
+                                <th>警告</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 `;
                 
                 for (let targetMag of targetMagnifications) {
@@ -535,15 +522,14 @@
                             <td>${targetMag.toFixed(2)}x</td>
                             <td><span class="highlight">${sensitivity.toFixed(4)}</span></td>
                             <td>${range}</td>
-                            <td style="font-size: 0.85em;">${calibrationSuggestion}</td>
+                            <td style="font-size: 0.9em;">${calibrationSuggestion}</td>
                         </tr>
                     `;
                 }
                 
                 resultsHTML += `
-                            </tbody>
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
                     <div class="result-detail" style="margin-top: 15px;">
                         <strong>设置说明:</strong> 将计算出的灵敏度系数填入对应游戏区间。如果多个倍镜落入同一区间，优先保证最常用倍镜的手感一致。
                     </div>
